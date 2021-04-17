@@ -18,14 +18,8 @@ class OptionChooser(tk.Frame):
     TEXT_COLOR = 'black'
 
     def __init__(
-            self,
-            home_screen: HomeScreen,
-            name: str,
-            y: float,
-            height: float,
-            values: list[int, str],
-            default_value: [str, int]
-    ) -> None:
+            self, home_screen: HomeScreen, name: str, y: float, height: float, 
+            values: list[int, str], default_value: [str, int]) -> None:
 
         tk.Frame.__init__(self, home_screen, bg=home_screen.BG)
 
