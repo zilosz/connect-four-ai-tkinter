@@ -46,19 +46,11 @@ class GameScreen(tk.Frame):
     WAIT_SYMBOL_GAP_TO_SIZE_RATIO = 0.4
 
     def __init__(
-            self,
-            app: App,
-            rows: int,
-            columns: int,
-            connect_amount: int,
-            user1: User,
-            user2: User
-    ) -> None:
+            self, app: App, rows: int, columns: int, 
+            connect_amount: int, user1: User, user2: User) -> None:
 
         tk.Frame.__init__(
-            self,
-            app,
-            highlightthickness=app.BORDER_WIDTH,
+            self, app, highlightthickness=app.BORDER_WIDTH,
             highlightcolor=app.BORDER_COLOR,
             highlightbackground=app.BORDER_COLOR
         )
