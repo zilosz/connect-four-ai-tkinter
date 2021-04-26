@@ -19,7 +19,7 @@ class OptionChooser(tk.Frame):
 
     def __init__(
             self, home_screen: HomeScreen, name: str, y: float, height: float, 
-            values: list[int, str], default_value: [str, int]) -> None:
+            values: list[any], default_value: [any]) -> None:
 
         tk.Frame.__init__(self, home_screen, bg=home_screen.BG)
 

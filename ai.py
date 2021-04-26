@@ -22,18 +22,15 @@ class AI(User):
 
     def __init__(self, game: GameScreen, color: str, win_color: str) -> None:
         User.__init__(self, game, color, win_color)
-
         self.move_time = self.DEFAULT_MOVE_TIME
         self.drop_time = self.DEFAULT_DROP_TIME
         self.think_time = self.DEFAULT_THINK_TIME
 
     def get_piece_sequence_score(self, sequence: list[str]) -> float:
         score = 0
-
         ai_piece_count = sequence.count(self.color)
         enemy_piece_count = sequence.count(self.game.get_other_color(self.color))
         empty_count = sequence.count(Slot.EMPTY_COLOR)
-
         highest_score = self.game.connect_amount * self.WIN_WEIGHT
 
         if ai_piece_count == self.game.connect_amount:
@@ -57,7 +54,6 @@ class AI(User):
 
     def score_position(self, board: Board) -> float:
         score = 0
-
         center_colors = []
 
         for start_row in range(board.rows - self.game.connect_amount + 1):
@@ -105,14 +101,8 @@ class AI(User):
 
         return score
 
-    def get_best_column(
-            self,
-            board: Board,
-            ai_score: float,
-            enemy_score: float,
-            is_self_turn: bool,
-            depth: int
-            ) -> [int, float]:
+    def get_best_column(self, board: Board, ai_score: float, enemy_score: float,
+            is_self_turn: bool, depth: int) -> [int, float]:
 
         open_columns = board.get_open_columns()
 

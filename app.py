@@ -33,21 +33,19 @@ class App(tk.Tk):
         self.state('zoom')
         self.title('Connect Four')
         self.configure(bg=self.BG)
-
+        
         monitor_info = win.GetMonitorInfo(win.MonitorFromPoint((0, 0)))
         monitor_area = monitor_info.get("Monitor")
         work_area = monitor_info.get("Work")
         task_bar_height = monitor_area[3] - work_area[3]
-
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
         window_title_height = ctypes.windll.user32.GetSystemMetrics(4)
-
+        
         self.width, self.height = gui.size()
         self.height -= task_bar_height + window_title_height
-
+        
         self.home_screen = HomeScreen(self)
         self.home_screen.draw()
-
         self.game_screen = None
 
     def go_home(self, event=None) -> None:
@@ -57,16 +55,12 @@ class App(tk.Tk):
 
     def start_game(self, event=None) -> None:
         self.home_screen.grid_forget()
-
         self.game_screen = GameScreen(
-            self,
-            self.home_screen.get_row_input(),
+            self, self.home_screen.get_row_input(),
             self.home_screen.get_column_input(),
             self.home_screen.get_connect_amount_input(),
             self.home_screen.get_user1_input(),
-            self.home_screen.get_user2_input()
-        )
-
+            self.home_screen.get_user2_input())
         self.game_screen.draw()
         self.game_screen.manage_turn()
 
