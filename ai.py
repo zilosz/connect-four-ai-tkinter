@@ -40,27 +40,23 @@ class AI(User):
     def get_piece_sequence_score(self, sequence):
         score = 0
         
-        ai_piece_count = sequence.count(self.color)
-        enemy_piece_count = sequence.count(self.game.get_other_color(self.color))
-        empty_count = sequence.count(Slot.EMPTY_COLOR)
+        ai_pieces = sequence.count(self.color)
+        enemy_pieces = sequence.count(self.game.get_other_color(self.color))
+        empty = sequence.count(Slot.EMPTY_COLOR)
         
         highest_score = self.game.connect_amount * self.WIN_WEIGHT
 
-        if ai_piece_count == self.game.connect_amount:
+        if ai_pieces == self.game.connect_amount:
             score += highest_score
 
         ai_one_away_points = self.game.connect_amount * self.AI_ONE_AWAY_WEIGHT
 
-        for check in range(1, self.game.connect_amount - 1):
+        for i in range(1, self.game.connect_amount - 1):
 
-            if ai_piece_count == self.game.connect_amount - check \
-                    and empty_count == check:
+            if ai_pieces == self.game.connect_amount - i and empty == i:
+                score += ai_one_away_points * self.SCORE_DECAY_RATE ** (i - 1)
 
-                score += ai_one_away_points \
-                         * self.SCORE_DECAY_RATE ** (check - 1)
-
-        if enemy_piece_count == self.game.connect_amount - 1 \
-                and empty_count == 1:
+        if enemy_pieces == self.game.connect_amount - 1 and empty == 1:
             score -= self.game.connect_amount * self.ENEMY_ONE_AWAY_WEIGHT
 
         return score
@@ -86,29 +82,29 @@ class AI(User):
             row_colors = board.colors[r]
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                sequence = row_colors[c: c + self.game.connect_amount]
-                score += self.get_piece_sequence_score(sequence)
+                pieces = row_colors[c: c + self.game.connect_amount]
+                score += self.get_piece_sequence_score(pieces)
 
         for c in range(board.columns):
             column_colors = [board.colors[r][c] for r in range(board.rows)]
 
             for r in range(board.rows - self.game.connect_amount + 1):
-                sequence = column_colors[r: r + self.game.connect_amount]
-                score += self.get_piece_sequence_score(sequence)
+                pieces = column_colors[r: r + self.game.connect_amount]
+                score += self.get_piece_sequence_score(pieces)
 
         for r in range(board.rows - self.game.connect_amount + 1):
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                sequence = [board.colors[r + shift][c + shift]
-                            for shift in range(self.game.connect_amount)]
-                score += self.get_piece_sequence_score(sequence)
+                pieces = [board.colors[r + shift][c + shift]
+                          for shift in range(self.game.connect_amount)]
+                score += self.get_piece_sequence_score(pieces)
 
         for r in range(board.rows - self.game.connect_amount + 1):
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                sequence = [board.colors[r + self.game.connect_amount - 1 - shift]
-                    [c + shift] for shift in range(self.game.connect_amount)]
-                score += self.get_piece_sequence_score(sequence)
+                pieces = [board.colors[r + self.game.connect_amount - 1 - i][c + i]
+                          for i in range(self.game.connect_amount)]
+                score += self.get_piece_sequence_score(pieces)
 
         return score
 
@@ -119,13 +115,12 @@ class AI(User):
             return None, self.score_position(board)
 
         if board.has_piece_been_played():
-            game_has_been_won = board.has_last_move_won_game(
-                self.game.connect_amount)
+            game_won = board.has_last_move_won_game(self.game.connect_amount)
 
-            if game_has_been_won and is_self_turn:
+            if game_won and is_self_turn:
                 return None, -math.inf
 
-            if game_has_been_won and not is_self_turn:
+            if game_won and not is_self_turn:
                 return None, math.inf
 
             if len(open_columns) == 0:
@@ -139,7 +134,12 @@ class AI(User):
                 board_copy = copy.deepcopy(board)
                 board_copy.drop_piece_in_column(open_column, self.color)
                 ai_score_from_column = self.get_best_column(
-                    board_copy, ai_score, enemy_score, False, depth - 1)[1]
+                    board_copy,
+                    ai_score,
+                    enemy_score,
+                    False,
+                    depth - 1
+                )[1]
 
                 if ai_score_from_column > max_score:
                     max_score = ai_score_from_column
@@ -158,10 +158,15 @@ class AI(User):
 
             for open_column in open_columns:
                 board_copy = copy.deepcopy(board)
-                board_copy.drop_piece_in_column(
-                    open_column, self.game.get_other_color(self.color))
+                other_color = self.game.get_other_color(self.color)
+                board_copy.drop_piece_in_column(open_column, other_color)
                 enemy_score_from_column = self.get_best_column(
-                    board_copy, ai_score, enemy_score, True, depth - 1)[1]
+                    board_copy,
+                    ai_score,
+                    enemy_score,
+                    True,
+                    depth - 1
+                )[1]
                 
                 if enemy_score_from_column < min_score:
                     min_score = enemy_score_from_column
@@ -178,11 +183,20 @@ class AI(User):
         self.game.disable_player_input()
         self.game.change_wait_symbol_state('normal')
         self.game.app.update()
+
         self.game.app.after(self.think_time, self.game.app.update_idletasks())
         column_played = self.get_best_column(
-            self.game.board, -math.inf, math.inf, True, self.DEPTH)[0]
+            self.game.board,
+            -math.inf,
+            math.inf,
+            True,
+            self.DEPTH
+        )[0]
+
         self.game.change_wait_symbol_state('hidden')
         self.game.move_drop_piece_to_column(
-            column_played, move_time=self.move_time)
+            column_played,
+            move_time=self.move_time
+        )
         self.game.app.after(self.drop_time, self.game.drop_piece())
         self.game.app.update_idletasks()

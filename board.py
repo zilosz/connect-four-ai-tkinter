@@ -6,7 +6,7 @@ class Board:
     def __init__(self, rows, columns):
         self.rows = rows
         self.columns = columns
-        self.last_played_coordinate = None
+        self.last_coord = None
         self.colors = [[Slot.EMPTY_COLOR] * columns for _ in range(rows)]
 
     def center_column(self):
@@ -25,88 +25,82 @@ class Board:
     def drop_piece_in_column(self, column, piece_color):
         lowest_row = self.get_drop_row_in_column(column)
         self.colors[lowest_row][column] = piece_color
-        self.last_played_coordinate = (lowest_row, column)
+        self.last_coord = (lowest_row, column)
 
     def get_open_columns(self):
         return [col for col in range(self.columns) if self.is_column_open(col)]
 
-    def winning_coordinates(self, r, c, connect_amount):
+    def winning_coordinates(self, piece_row, piece_column, connect_amount):
         winning_coordinates = []
-        color = self.colors[r][c]
+        color = self.colors[piece_row][piece_column]
         horizontal_coordinates = []
-        column = c
+        c = piece_column
 
-        while column >= 0 and self.colors[r][column] == color:
-            horizontal_coordinates.append((r, column))
-            column -= 1
+        while c >= 0 and self.colors[piece_row][c] == color:
+            horizontal_coordinates.append((piece_row, c))
+            c -= 1
 
-        column = c + 1
+        c = piece_column + 1
 
-        while column < self.columns and self.colors[r][column] == color:
-            horizontal_coordinates.append((r, column))
-            column += 1
+        while c < self.columns and self.colors[piece_row][c] == color:
+            horizontal_coordinates.append((piece_row, c))
+            c += 1
 
         if len(horizontal_coordinates) >= connect_amount:
             winning_coordinates += horizontal_coordinates
 
         vertical_coordinates = []
-        row = r
+        r = piece_row
 
-        while row >= 0 and self.colors[row][c] == color:
-            vertical_coordinates.append((row, c))
-            row -= 1
+        while r >= 0 and self.colors[r][piece_column] == color:
+            vertical_coordinates.append((r, piece_column))
+            r -= 1
 
-        row = r + 1
+        r = piece_row + 1
 
-        while row < self.rows and self.colors[row][c] == color:
-            vertical_coordinates.append((row, c))
-            row += 1
+        while r < self.rows and self.colors[r][piece_column] == color:
+            vertical_coordinates.append((r, piece_column))
+            r += 1
 
         if len(vertical_coordinates) >= connect_amount:
             winning_coordinates += vertical_coordinates
 
         back_diagonal_coordinates = []
-        row = r
-        column = c
+        r = piece_row
+        c = piece_column
 
-        while row >= 0 and column >= 0 and self.colors[row][column] == color:
-            back_diagonal_coordinates.append((row, column))
-            row -= 1
-            column -= 1
+        while r >= 0 and c >= 0 and self.colors[r][c] == color:
+            back_diagonal_coordinates.append((r, c))
+            r -= 1
+            c -= 1
 
-        row = r + 1
-        column = c + 1
+        r = piece_row + 1
+        c = piece_column + 1
 
-        while row < self.rows and column < self.columns \
-                and self.colors[row][column] == color:
-                    
-            back_diagonal_coordinates.append((row, column))
-            row += 1
-            column += 1
+        while r < self.rows and c < self.columns and self.colors[r][c] == color:
+            back_diagonal_coordinates.append((r, c))
+            r += 1
+            c += 1
 
         if len(back_diagonal_coordinates) >= connect_amount:
             winning_coordinates += back_diagonal_coordinates
 
         front_diagonal_coordinates = []
-        row = r
-        column = c
+        r = piece_row
+        c = piece_column
 
-        while row >= 0 and column < self.columns \
-                and self.colors[row][column] == color:
+        while r >= 0 and c < self.columns and self.colors[r][c] == color:
+            front_diagonal_coordinates.append((r, c))
+            r -= 1
+            c += 1
 
-            front_diagonal_coordinates.append((row, column))
-            row -= 1
-            column += 1
+        r = piece_row + 1
+        c = piece_column - 1
 
-        row = r + 1
-        column = c - 1
-
-        while row < self.rows and column >= 0 \
-                and self.colors[row][column] == color:
-                    
-            front_diagonal_coordinates.append((row, column))
-            row += 1
-            column -= 1
+        while r < self.rows and c >= 0 and self.colors[r][c] == color:
+            front_diagonal_coordinates.append((r, c))
+            r += 1
+            c -= 1
 
         if len(front_diagonal_coordinates) >= connect_amount:
             winning_coordinates += front_diagonal_coordinates
@@ -114,11 +108,11 @@ class Board:
         return winning_coordinates
 
     def has_piece_been_played(self):
-        return self.last_played_coordinate is not None
+        return self.last_coord is not None
 
     def has_last_move_won_game(self, connect_amount):
-        return len(self.winning_coordinates(
-            *self.last_played_coordinate, connect_amount)) >= connect_amount
+        win_coords = self.winning_coordinates(*self.last_coord, connect_amount)
+        return len(win_coords) >= connect_amount
 
     def is_full(self):
         return len(self.get_open_columns()) == 0

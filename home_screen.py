@@ -42,23 +42,25 @@ class HomeScreen(tk.Frame):
         self.width = app.width * self.WIDTH_RATIO
         self.height = app.height - app.BORDER_WIDTH * 2
 
-        canvas = tk.Canvas(
+        self.canvas = tk.Canvas(
             self, 
-            width=self.width, 
-            height=self.height, 
+            width=self.width,
+            height=self.height,
             bg=self.BG, 
             highlightthickness=0
         )
-        canvas.grid()
+        self.canvas.grid()
 
         title_height = self.height * self.TITLE_HEIGHT_RATIO
         title_font_size = int(
-            self.width * self.TITLE_FONT_SIZE_TO_WIDTH_RATIO
-            * self.TITLE_WIDTH_RATIO)
+            self.width
+            * self.TITLE_FONT_SIZE_TO_WIDTH_RATIO
+            * self.TITLE_WIDTH_RATIO
+        )
         title_width = self.width * self.TITLE_WIDTH_RATIO
         title_x = self.width / 2 - title_width / 2
 
-        self.title = tk.Label(
+        title = tk.Label(
             self, 
             text='Connect Four',
             bg=self.TITLE_BG, 
@@ -67,10 +69,10 @@ class HomeScreen(tk.Frame):
         )
 
         current_widget_y = 0
-        self.title_window = canvas.create_window(
+        self.canvas.create_window(
             title_x, 
             current_widget_y,
-            window=self.title,
+            window=title,
             width=title_width, 
             height=title_height, 
             anchor='nw'
@@ -149,7 +151,8 @@ class HomeScreen(tk.Frame):
         play_button_height = chooser_height \
             * self.PLAY_BUTTON_HEIGHT_TO_CHOOSER_HEIGHT_RATIO
         play_button_font_size = int(
-            play_button_width * self.PLAY_BUTTON_FONT_SIZE_TO_WIDTH_RATIO)
+            play_button_width * self.PLAY_BUTTON_FONT_SIZE_TO_WIDTH_RATIO
+        )
         play_button_font = (self.PLAY_BUTTON_FONT_NAME, play_button_font_size)
 
         self.play_button = tk.Button(
@@ -164,7 +167,7 @@ class HomeScreen(tk.Frame):
         self.play_button.bind('<Enter>', self.on_play_button_hover)
         self.play_button.bind('<Leave>', self.on_play_button_leave)
 
-        self.play_button_window = canvas.create_window(
+        self.canvas.create_window(
             play_button_x, 
             current_widget_y, 
             window=self.play_button,
@@ -172,14 +175,6 @@ class HomeScreen(tk.Frame):
             height=play_button_height, 
             anchor='nw'
         )
-
-        self.option_choosers = [
-            self.row_chooser,
-            self.column_chooser,
-            self.connect_amount_chooser,
-            self.user1_chooser,
-            self.user2_chooser
-        ]
 
     def on_play_button_hover(self, event):
         self.play_button.configure(bg=self.PLAY_BUTTON_ACTIVE_BG)
@@ -191,6 +186,8 @@ class HomeScreen(tk.Frame):
         self.grid(padx=(self.app.width / 2 - self.width / 2, 0))
 
     def set_options_to_default(self):
-    
-        for option_chooser in self.option_choosers:
-            option_chooser.set_to_default()
+        self.row_chooser.set_to_default()
+        self.column_chooser.set_to_default()
+        self.connect_amount_chooser.set_to_default()
+        self.user1_chooser.set_to_default()
+        self.user2_chooser.set_to_default()
