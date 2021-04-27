@@ -7,6 +7,8 @@ from slot import Slot
 
 
 class AI(User):
+    
+    CHOOSER_NAME = 'AI'
 
     DEFAULT_MOVE_TIME = 400
     DEFAULT_DROP_TIME = 400

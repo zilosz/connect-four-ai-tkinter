@@ -23,29 +23,40 @@ class OptionChooser(tk.Frame):
         font = (self.FONT_NAME, font_size)
         
         label = tk.Label(
-            self, text=name, bg=home_screen.BG, fg=self.TEXT_COLOR, font=font)
+            self, 
+            text=name, 
+            bg=home_screen.BG, 
+            fg=self.TEXT_COLOR, 
+            font=font
+        )
         label.pack(side=tk.LEFT)
         
         default = tk.StringVar()
         self.spinbox = tk.Spinbox(
-            self, values=values, textvariable=default, font=font, 
-            justify='center', wrap=True, 
+            self, 
+            values=values, 
+            textvariable=default, 
+            font=font, 
+            justify='center', 
+            wrap=True, 
             highlightthickness=self.SPINBOX_BORDER_WIDTH,
             highlightcolor=self.SPINBOX_BORDER_COLOR,
             highlightbackground=self.SPINBOX_BORDER_COLOR,
             command=self.adjust_width
         )
         default.set(default_value)
+        self.default_value = default_value
         self.adjust_width()
         
         pad_x = home_screen.width * self.CENTER_GAP_TO_SCREEN_WIDTH_RATIO
         self.spinbox.pack(side=tk.RIGHT, padx=(pad_x, 0))
+        
         self.window = home_screen.canvas.create_window(
-            home_screen.width / 2, y + height / 2, window=self, height=height)
-        self.default_value = default_value
-
-    def get_option(self):
-        return self.spinbox.get()
+            home_screen.width / 2, 
+            y + height / 2, 
+            window=self, 
+            height=height
+        )
 
     def set_to_default(self):
         self.spinbox.delete(0, 'end')
@@ -53,5 +64,5 @@ class OptionChooser(tk.Frame):
         self.adjust_width()
 
     def adjust_width(self, event=None):
-        self.spinbox.configure(
-            width=len(self.spinbox.get()) + self.SPINBOX_EXTRA_ENTRY_SPACE)
+        chars = len(self.spinbox.get())
+        self.spinbox.configure(width=chars+self.SPINBOX_EXTRA_ENTRY_SPACE)

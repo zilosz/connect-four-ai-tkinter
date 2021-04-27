@@ -56,12 +56,14 @@ class App(tk.Tk):
 
     def start_game(self, event=None):
         self.home_screen.grid_forget()
+        
         self.game_screen = GameScreen(
-            self, self.home_screen.get_row_input(),
-            self.home_screen.get_column_input(),
-            self.home_screen.get_connect_amount_input(),
-            self.home_screen.get_user1_input(),
-            self.home_screen.get_user2_input()
+            self, 
+            int(self.home_screen.row_chooser.spinbox.get()),
+            int(self.home_screen.column_chooser.spinbox.get()),
+            int(self.home_screen.connect_amount_chooser.spinbox.get()),
+            self.home_screen.user1_chooser.spinbox.get(),
+            self.home_screen.user2_chooser.spinbox.get()
         )
         self.game_screen.draw()
         self.game_screen.manage_turn()
