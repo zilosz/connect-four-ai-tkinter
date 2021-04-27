@@ -371,7 +371,10 @@ class GameScreen(tk.Frame):
             self.dropper_piece, 
             fill=self.user_going.color
         )
-        turn_thread = threading.Thread(target=self.user_going.initiate_turn)
+        turn_thread = threading.Thread(
+            target=self.user_going.initiate_turn, 
+            daemon=True
+        )
         turn_thread.start()
 
     def move_drop_piece_left(self, event=None):
