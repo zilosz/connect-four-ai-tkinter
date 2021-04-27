@@ -173,12 +173,10 @@ class GameScreen(tk.Frame):
             command=self.speed_toggle
         )
         
-        home_button_bbox = self.top_canvas.bbox(self.home_button_window)
-        home_button_width = home_button_bbox[2] - home_button_bbox[0]
+        home_button_right_x = self.top_canvas.bbox(self.home_button_window)[2]
         speed_button_x_offset = self.SPEED_BUTTON_X_OFFSET_TO_PIECE_SIZE_RATIO \
             * self.piece_size
-        speed_button_x = home_button_x + speed_button_x_offset \
-            + home_button_width
+        speed_button_x = home_button_right_x + speed_button_x_offset
         
         self.speed_button_window = self.top_canvas.create_window(
             speed_button_x, button_y, window=self.speed_button, 
