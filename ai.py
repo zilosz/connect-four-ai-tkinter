@@ -2,17 +2,15 @@ import math
 import random
 import copy
 
-from board import Board
-from game_screen import GameScreen
 from user import User
 from slot import Slot
 
 
 class AI(User):
 
-    DEFAULT_MOVE_TIME = 0
-    DEFAULT_DROP_TIME = 0
-    DEFAULT_THINK_TIME = 0
+    DEFAULT_MOVE_TIME = 400
+    DEFAULT_DROP_TIME = 400
+    DEFAULT_THINK_TIME = 400
     DEPTH = 5
     SCORE_DECAY_RATE = 0.5
     CENTER_WEIGHT = 0.75
@@ -20,17 +18,30 @@ class AI(User):
     AI_ONE_AWAY_WEIGHT = 1.25
     WIN_WEIGHT = 25
 
-    def __init__(self, game: GameScreen, color: str, win_color: str) -> None:
+    def __init__(self, game, color, win_color):
         User.__init__(self, game, color, win_color)
+        
+        self.move_time = self.DEFAULT_MOVE_TIME
+        self.drop_time = self.DEFAULT_DROP_TIME
+        self.think_time = self.DEFAULT_THINK_TIME
+        
+    def set_speed(self, speed):
+        self.move_time = speed
+        self.drop_time = speed
+        self.think_time = speed
+        
+    def reset_speed(self):
         self.move_time = self.DEFAULT_MOVE_TIME
         self.drop_time = self.DEFAULT_DROP_TIME
         self.think_time = self.DEFAULT_THINK_TIME
 
-    def get_piece_sequence_score(self, sequence: list[str]) -> float:
+    def get_piece_sequence_score(self, sequence):
         score = 0
+        
         ai_piece_count = sequence.count(self.color)
         enemy_piece_count = sequence.count(self.game.get_other_color(self.color))
         empty_count = sequence.count(Slot.EMPTY_COLOR)
+        
         highest_score = self.game.connect_amount * self.WIN_WEIGHT
 
         if ai_piece_count == self.game.connect_amount:
@@ -52,7 +63,7 @@ class AI(User):
 
         return score
 
-    def score_position(self, board: Board) -> float:
+    def score_position(self, board):
         score = 0
         center_colors = []
 
@@ -93,17 +104,13 @@ class AI(User):
         for r in range(board.rows - self.game.connect_amount + 1):
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                sequence = [
-                    board.colors[r + self.game.connect_amount - 1 - shift]
-                    [c + shift] for shift in range(self.game.connect_amount)
-                ]
+                sequence = [board.colors[r + self.game.connect_amount - 1 - shift]
+                    [c + shift] for shift in range(self.game.connect_amount)]
                 score += self.get_piece_sequence_score(sequence)
 
         return score
 
-    def get_best_column(self, board: Board, ai_score: float, enemy_score: float,
-            is_self_turn: bool, depth: int) -> [int, float]:
-
+    def get_best_column(self, board, ai_score, enemy_score, is_self_turn, depth):
         open_columns = board.get_open_columns()
 
         if depth == 0:
@@ -165,7 +172,7 @@ class AI(User):
 
             return chosen_column, min_score
 
-    def initiate_turn(self) -> None:
+    def initiate_turn(self):
         self.game.disable_player_input()
         self.game.change_wait_symbol_state('normal')
         self.game.app.update()

@@ -30,6 +30,7 @@ class App(tk.Tk):
 
     def __init__(self) -> None:
         tk.Tk.__init__(self)
+        
         self.state('zoom')
         self.title('Connect Four')
         self.configure(bg=self.BG)
@@ -48,19 +49,20 @@ class App(tk.Tk):
         self.home_screen.draw()
         self.game_screen = None
 
-    def go_home(self, event=None) -> None:
+    def go_home(self, event=None):
         self.game_screen.grid_forget()
         self.home_screen.draw()
         self.home_screen.set_options_to_default()
 
-    def start_game(self, event=None) -> None:
+    def start_game(self, event=None):
         self.home_screen.grid_forget()
         self.game_screen = GameScreen(
             self, self.home_screen.get_row_input(),
             self.home_screen.get_column_input(),
             self.home_screen.get_connect_amount_input(),
             self.home_screen.get_user1_input(),
-            self.home_screen.get_user2_input())
+            self.home_screen.get_user2_input()
+        )
         self.game_screen.draw()
         self.game_screen.manage_turn()
 

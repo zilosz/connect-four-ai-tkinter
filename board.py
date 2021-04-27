@@ -3,36 +3,34 @@ from slot import Slot
 
 class Board:
 
-    def __init__(self, rows: int, columns: int) -> None:
+    def __init__(self, rows, columns):
         self.rows = rows
         self.columns = columns
         self.last_played_coordinate = None
         self.colors = [[Slot.EMPTY_COLOR] * columns for _ in range(rows)]
 
-    def center_column(self) -> int:
+    def center_column(self):
         return self.columns // 2
 
-    def is_column_open(self, column: int) -> bool:
+    def is_column_open(self, column):
         return self.colors[0][column] == Slot.EMPTY_COLOR
 
-    def get_drop_row_in_column(self, column: int) -> int:
+    def get_drop_row_in_column(self, column):
 
         for row in range(self.rows - 1, -1, -1):
 
             if self.colors[row][column] == Slot.EMPTY_COLOR:
                 return row
 
-    def drop_piece_in_column(self, column: int, piece_color: str) -> None:
+    def drop_piece_in_column(self, column, piece_color):
         lowest_row = self.get_drop_row_in_column(column)
         self.colors[lowest_row][column] = piece_color
         self.last_played_coordinate = (lowest_row, column)
 
-    def get_open_columns(self) -> list[int]:
+    def get_open_columns(self):
         return [col for col in range(self.columns) if self.is_column_open(col)]
 
-    def winning_coordinates(
-            self, r: int, c: int, connect_amount: int) -> list[tuple[int, int]]:
-        
+    def winning_coordinates(self, r, c, connect_amount):
         winning_coordinates = []
         color = self.colors[r][c]
         horizontal_coordinates = []
@@ -115,12 +113,12 @@ class Board:
 
         return winning_coordinates
 
-    def has_piece_been_played(self) -> bool:
+    def has_piece_been_played(self):
         return self.last_played_coordinate is not None
 
-    def has_last_move_won_game(self, connect_amount: int) -> bool:
+    def has_last_move_won_game(self, connect_amount):
         return len(self.winning_coordinates(
             *self.last_played_coordinate, connect_amount)) >= connect_amount
 
-    def is_full(self) -> bool:
+    def is_full(self):
         return len(self.get_open_columns()) == 0

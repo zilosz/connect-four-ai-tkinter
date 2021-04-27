@@ -2,7 +2,6 @@ import tkinter as tk
 import random
 import threading
 
-from app import App
 from player import Player
 from ai import AI
 from slot import Slot
@@ -11,15 +10,22 @@ from user import User
 
 
 class GameScreen(tk.Frame):
+    
     BG = 'gray90'
 
-    HOME_BUTTON_FONT_NAME = 'Alegreya SC'
-    HOME_BUTTON_FONT_SIZE_TO_HEIGHT_RATIO = 0.4
+    BUTTON_FONT_NAME = 'Alegreya SC'
+    BUTTON_FONT_SIZE_TO_HEIGHT_RATIO = 0.4
+    BUTTON_GAP_TO_PIECE_SIZE_RATIO = 0.2
+    BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO = 0.6
+    
     HOME_BUTTON_BG = 'navy'
     HOME_BUTTON_ACTIVE_BG = '#0000AE'
     HOME_BUTTON_FG = 'white'
-    HOME_BUTTON_GAP_TO_PIECE_SIZE_RATIO = 0.2
-    HOME_BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO = 0.6
+    
+    SPEED_BUTTON_NORMAL_BG = 'navy'
+    SPEED_BUTTON_FAST_BG = '#0000AE'
+    SPEED_BUTTON_FG = 'white'
+    SPEED_BUTTON_X_OFFSET_TO_PIECE_SIZE_RATIO = 0.25
 
     TOP_CANVAS_COLOR = 'light blue'
     TOP_CANVAS_Y_PAD_TO_PIECE_SIZE_RATIO = 0.25
@@ -45,9 +51,7 @@ class GameScreen(tk.Frame):
     WAIT_SYMBOL_COLOR = 'black'
     WAIT_SYMBOL_GAP_TO_SIZE_RATIO = 0.4
 
-    def __init__(
-            self, app: App, rows: int, columns: int,
-            connect_amount: int, user1: User, user2: User) -> None:
+    def __init__(self, app, rows, columns, connect_amount, user1, user2):
 
         tk.Frame.__init__(
             self, app, highlightthickness=app.BORDER_WIDTH,
@@ -75,8 +79,8 @@ class GameScreen(tk.Frame):
         top_ratio = 1 + self.TOP_CANVAS_Y_PAD_TO_PIECE_SIZE_RATIO * 2 \
             + self.ARROW_DISTANCE_TO_PIECE_SIZE_RATIO \
             + self.DOWN_ARROW_LENGTH_TO_PIECE_SIZE_RATIO \
-            + self.HOME_BUTTON_GAP_TO_PIECE_SIZE_RATIO * 2 \
-            + self.HOME_BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO
+            + self.BUTTON_GAP_TO_PIECE_SIZE_RATIO * 2 \
+            + self.BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO
 
         board_ratio = self.rows + self.BOARD_SLOT_GAP_TO_PIECE_SIZE_RATIO \
             * (self.rows + 1)
@@ -84,7 +88,8 @@ class GameScreen(tk.Frame):
 
         self.height = app.height - app.BORDER_WIDTH * 2
         self.piece_size = self.height / total_ratio
-        self.gap_size = self.piece_size * self.BOARD_SLOT_GAP_TO_PIECE_SIZE_RATIO
+        self.gap_size = self.piece_size \
+            * self.BOARD_SLOT_GAP_TO_PIECE_SIZE_RATIO
         self.width = self.columns * (self.piece_size + self.gap_size) \
             + self.gap_size
 
@@ -134,16 +139,16 @@ class GameScreen(tk.Frame):
         )
         self.top_canvas.pack(side=tk.TOP)
 
-        home_button_gap = self.HOME_BUTTON_GAP_TO_PIECE_SIZE_RATIO \
+        home_button_gap = self.BUTTON_GAP_TO_PIECE_SIZE_RATIO * self.piece_size
+        home_button_height = self.BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO \
             * self.piece_size
-        home_button_height = self.HOME_BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO \
-            * self.piece_size
-        home_button_font_size = int(
-            self.HOME_BUTTON_FONT_SIZE_TO_HEIGHT_RATIO * home_button_height)
-        home_button_font = (self.HOME_BUTTON_FONT_NAME, home_button_font_size)
+            
+        button_font_size = int(
+            self.BUTTON_FONT_SIZE_TO_HEIGHT_RATIO * home_button_height)
+        button_font = (self.BUTTON_FONT_NAME, button_font_size)
 
         self.home_button = tk.Button(
-            self, text='Home', font=home_button_font, bg=self.HOME_BUTTON_BG,
+            self, text='Home', font=button_font, bg=self.HOME_BUTTON_BG,
             fg=self.HOME_BUTTON_FG, command=app.go_home
         )
 
@@ -151,12 +156,39 @@ class GameScreen(tk.Frame):
         self.home_button.bind('<Leave>', self.on_home_button_leave)
 
         home_button_x = app.BORDER_WIDTH + home_button_gap
-        home_button_y = app.BORDER_WIDTH + home_button_gap
+        button_y = app.BORDER_WIDTH + home_button_gap
 
         self.home_button_window = self.top_canvas.create_window(
-            home_button_x, home_button_y, window=self.home_button,
+            home_button_x, button_y, window=self.home_button,
             height=home_button_height, anchor='nw'
         )
+        
+        speed_button_gap = self.BUTTON_GAP_TO_PIECE_SIZE_RATIO * self.piece_size
+        speed_button_height = self.BUTTON_HEIGHT_TO_PIECE_SIZE_RATIO \
+            * self.piece_size
+        
+        self.speed_button = tk.Button(
+            self, text='Speed Off', font=button_font, 
+            bg=self.SPEED_BUTTON_NORMAL_BG, fg=self.SPEED_BUTTON_FG, 
+            command=self.speed_toggle
+        )
+        
+        home_button_bbox = self.top_canvas.bbox(self.home_button_window)
+        home_button_width = home_button_bbox[2] - home_button_bbox[0]
+        speed_button_x_offset = self.SPEED_BUTTON_X_OFFSET_TO_PIECE_SIZE_RATIO \
+            * self.piece_size
+        speed_button_x = home_button_x + speed_button_x_offset \
+            + home_button_width
+        
+        self.speed_button_window = self.top_canvas.create_window(
+            speed_button_x, button_y, window=self.speed_button, 
+            height=home_button_height, anchor='nw'
+        )
+        
+        self.speed_button.bind('<Enter>', self.on_speed_button_hover)
+        self.speed_button.bind('<Leave>', self.on_speed_button_leave)
+        
+        self.is_speed_on = False
 
         y_pad = self.piece_size * self.TOP_CANVAS_Y_PAD_TO_PIECE_SIZE_RATIO
         center_x = self.width / 2
@@ -241,8 +273,10 @@ class GameScreen(tk.Frame):
         )
 
         self.top_widgets = [
-            self.left_arrow, self.right_arrow,
-            self.dropper_piece, self.down_arrow
+            self.left_arrow, 
+            self.right_arrow,
+            self.dropper_piece, 
+            self.down_arrow
         ]
 
         self.board = Board(self.rows, self.columns)
@@ -258,44 +292,89 @@ class GameScreen(tk.Frame):
         self.bind_all('<r>', app.go_home)
         self.users = [self.user1, self.user2]
         self.user_going = random.choice(self.users)
+        
+    def set_ai_speed(self, speed):
+        
+        if isinstance(self.user1, AI):
+            self.user1.set_speed(speed)
+            
+        if isinstance(self.user2, AI):
+            self.user2.set_speed(speed)
+            
+    def reset_ai_speed(self):
+        
+        if isinstance(self.user1, AI):
+            self.user1.reset_speed()
+            
+        if isinstance(self.user2, AI):
+            self.user2.reset_speed()
+        
+    def speed_toggle(self, event=None):
+        self.is_speed_on = not self.is_speed_on
+        
+        if self.is_speed_on:
+            self.speed_button.configure(bg=self.SPEED_BUTTON_FAST_BG)
+            self.speed_button.configure(text='Speed On')
+            self.set_ai_speed(0)
+            
+        else:
+            self.speed_button.configure(bg=self.SPEED_BUTTON_NORMAL_BG)
+            self.speed_button.configure(text='Speed Off')
+            self.reset_ai_speed()
+        
+    def on_speed_button_hover(self, event):
+        
+        if self.is_speed_on:
+            self.speed_button.configure(bg=self.SPEED_BUTTON_NORMAL_BG)
+            
+        else:
+            self.speed_button.configure(bg=self.SPEED_BUTTON_FAST_BG)
+            
+    def on_speed_button_leave(self, event):
+        
+        if self.is_speed_on:
+            self.speed_button.configure(bg=self.SPEED_BUTTON_FAST_BG)
+            
+        else:
+            self.speed_button.configure(bg=self.SPEED_BUTTON_NORMAL_BG)
 
-    def on_home_button_hover(self, event) -> None:
+    def on_home_button_hover(self, event):
         self.home_button.configure(bg=self.HOME_BUTTON_ACTIVE_BG)
 
-    def on_home_button_leave(self, event) -> None:
+    def on_home_button_leave(self, event):
         self.home_button.configure(bg=self.HOME_BUTTON_BG)
 
-    def draw(self) -> None:
+    def draw(self):
         self.grid(padx=(self.app.width / 2 - self.width / 2, 0))
 
-    def get_other_color(self, color: str) -> str:
+    def get_other_color(self, color):
 
         if color == self.user1.color:
             return self.user2.color
 
         return self.user1.color
 
-    def move_top_widgets(self, x: float) -> None:
+    def move_top_widgets(self, x):
 
         for widget in self.top_widgets:
             self.top_canvas.move(widget, x, 0)
 
-    def change_wait_symbol_state(self, state: str) -> None:
+    def change_wait_symbol_state(self, state):
 
         for symbol in self.wait_symbols:
             self.top_canvas.itemconfig(symbol, state=state)
 
-    def set_drop_color(self, color: str) -> None:
+    def set_drop_color(self, color):
         self.top_canvas.itemconfig(self.dropper_piece, fill=color)
 
-    def manage_turn(self) -> None:
+    def manage_turn(self):
         self.center_drop_piece()
         self.top_canvas.itemconfig(
             self.dropper_piece, fill=self.user_going.color)
         turn_thread = threading.Thread(target=self.user_going.initiate_turn)
         turn_thread.start()
 
-    def move_drop_piece_left(self, event=None) -> None:
+    def move_drop_piece_left(self, event=None):
 
         if self.drop_piece_column == self.columns - 1:
             self.top_canvas.itemconfig(self.right_arrow, state='normal')
@@ -307,7 +386,7 @@ class GameScreen(tk.Frame):
             if self.drop_piece_column == 0:
                 self.top_canvas.itemconfig(self.left_arrow, state='hidden')
 
-    def move_drop_piece_right(self, event=None) -> None:
+    def move_drop_piece_right(self, event=None):
 
         if self.drop_piece_column == 0:
             self.top_canvas.itemconfig(self.left_arrow, state='normal')
@@ -319,11 +398,10 @@ class GameScreen(tk.Frame):
             if self.drop_piece_column == self.columns - 1:
                 self.top_canvas.itemconfig(self.right_arrow, state='hidden')
 
-    def center_drop_piece(self) -> None:
+    def center_drop_piece(self):
         self.move_drop_piece_to_column(self.board.center_column())
 
-    def move_drop_piece_to_column(
-            self, column: int, move_time: float = 0) -> None:
+    def move_drop_piece_to_column(self, column, move_time=0):
 
         while self.drop_piece_column < column:
             self.move_drop_piece_right()
@@ -339,7 +417,7 @@ class GameScreen(tk.Frame):
                 self.app.after(move_time, self.app.update())
                 self.app.update_idletasks()
 
-    def drop_piece(self, event=None) -> None:
+    def drop_piece(self, event=None):
 
         if self.board.is_column_open(self.drop_piece_column):
 
@@ -375,33 +453,33 @@ class GameScreen(tk.Frame):
             self.user_going = self.users[next_user_index]
             self.manage_turn()
 
-    def enable_piece_mover_arrows(self) -> None:
+    def enable_piece_mover_arrows(self):
         self.top_canvas.tag_bind(
             self.left_arrow, '<Button-1>', self.move_drop_piece_left)
         self.bind_all('<Left>', self.move_drop_piece_left)
-
+        
         self.top_canvas.tag_bind(
             self.right_arrow, '<Button-1>', self.move_drop_piece_right)
         self.bind_all('<Right>', self.move_drop_piece_right)
 
-    def disable_piece_mover_arrows(self) -> None:
+    def disable_piece_mover_arrows(self):
         self.top_canvas.tag_unbind(self.left_arrow, '<Button-1>')
         self.unbind_all('<Left>')
         self.top_canvas.tag_unbind(self.right_arrow, '<Button-1>')
         self.unbind_all('<Right>')
 
-    def enable_drop(self) -> None:
+    def enable_drop(self):
         self.bind_all('<Down>', self.drop_piece)
         self.top_canvas.tag_bind(self.down_arrow, '<Button-1>', self.drop_piece)
 
-    def disable_drop(self) -> None:
+    def disable_drop(self):
         self.unbind_all('<Down>')
         self.top_canvas.tag_unbind(self.down_arrow, '<Button-1>')
 
-    def enable_player_input(self) -> None:
+    def enable_player_input(self):
         self.enable_drop()
         self.enable_piece_mover_arrows()
 
-    def disable_player_input(self) -> None:
+    def disable_player_input(self):
         self.disable_drop()
         self.disable_piece_mover_arrows()

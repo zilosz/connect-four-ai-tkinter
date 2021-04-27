@@ -29,7 +29,7 @@ class HomeScreen(tk.Frame):
     PLAY_BUTTON_WIDTH_RATIO = 0.3
 
     def __init__(self, app):
-
+        
         tk.Frame.__init__(
             self, app, highlightthickness=app.BORDER_WIDTH,
             highlightcolor=app.BORDER_COLOR,
