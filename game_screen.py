@@ -367,15 +367,8 @@ class GameScreen(tk.Frame):
 
     def manage_turn(self):
         self.center_drop_piece()
-        self.top_canvas.itemconfig(
-            self.dropper_piece, 
-            fill=self.user_going.color
-        )
-        turn_thread = threading.Thread(
-            target=self.user_going.initiate_turn, 
-            daemon=True
-        )
-        turn_thread.start()
+        self.top_canvas.itemconfig(self.dropper_piece, fill=self.user_going.color)
+        self.user_going.initiate_turn()
 
     def move_drop_piece_left(self, event=None):
 

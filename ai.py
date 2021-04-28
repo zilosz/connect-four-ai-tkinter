@@ -134,12 +134,7 @@ class AI(User):
                 board_copy = copy.deepcopy(board)
                 board_copy.drop_piece_in_column(open_column, self.color)
                 ai_score_from_column = self.get_best_column(
-                    board_copy,
-                    ai_score,
-                    enemy_score,
-                    False,
-                    depth - 1
-                )[1]
+                    board_copy, ai_score, enemy_score, False, depth - 1)[1]
 
                 if ai_score_from_column > max_score:
                     max_score = ai_score_from_column
@@ -161,12 +156,7 @@ class AI(User):
                 other_color = self.game.get_other_color(self.color)
                 board_copy.drop_piece_in_column(open_column, other_color)
                 enemy_score_from_column = self.get_best_column(
-                    board_copy,
-                    ai_score,
-                    enemy_score,
-                    True,
-                    depth - 1
-                )[1]
+                    board_copy, ai_score, enemy_score, True, depth - 1)[1]
                 
                 if enemy_score_from_column < min_score:
                     min_score = enemy_score_from_column
@@ -183,20 +173,13 @@ class AI(User):
         self.game.disable_player_input()
         self.game.change_wait_symbol_state('normal')
         self.game.app.update()
-
         self.game.app.after(self.think_time, self.game.app.update_idletasks())
+
         column_played = self.get_best_column(
-            self.game.board,
-            -math.inf,
-            math.inf,
-            True,
-            self.DEPTH
-        )[0]
+            self.game.board, -math.inf, math.inf, True, self.DEPTH)[0]
 
         self.game.change_wait_symbol_state('hidden')
         self.game.move_drop_piece_to_column(
-            column_played,
-            move_time=self.move_time
-        )
+            column_played, move_time=self.move_time)
         self.game.app.after(self.drop_time, self.game.drop_piece())
         self.game.app.update_idletasks()
