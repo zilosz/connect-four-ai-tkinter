@@ -425,18 +425,13 @@ class GameScreen(tk.Frame):
             drop_row = self.board.get_drop_row_in_column(self.drop_piece_column)
             slot = self.slots[drop_row][self.drop_piece_column]
             self.board.drop_piece_in_column(
-                self.drop_piece_column, 
-                self.user_going.color
-            )
+                self.drop_piece_column, self.user_going.color)
             slot.set_piece_color(self.user_going.color)
             slot.mark_as_last_played()
 
             if self.board.has_last_move_won_game(self.connect_amount):
                 winning_coordinates = self.board.winning_coordinates(
-                    drop_row, 
-                    self.drop_piece_column, 
-                    self.connect_amount
-                )
+                    drop_row, self.drop_piece_column, self.connect_amount)
 
                 for coordinate in winning_coordinates:
                     winning_slot = self.slots[coordinate[0]][coordinate[1]]
@@ -456,17 +451,11 @@ class GameScreen(tk.Frame):
 
     def enable_piece_mover_arrows(self):
         self.top_canvas.tag_bind(
-            self.left_arrow,
-            '<Button-1>',
-            self.move_drop_piece_left
-        )
+            self.left_arrow, '<Button-1>', self.move_drop_piece_left)
         self.bind_all('<Left>', self.move_drop_piece_left)
         
         self.top_canvas.tag_bind(
-            self.right_arrow,
-            '<Button-1>',
-            self.move_drop_piece_right
-        )
+            self.right_arrow, '<Button-1>', self.move_drop_piece_right)
         self.bind_all('<Right>', self.move_drop_piece_right)
 
     def disable_piece_mover_arrows(self):

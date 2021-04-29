@@ -6,7 +6,10 @@ from user import User
 from slot import Slot
 
 
-class AI(User):
+# Algorithm a rework of Keith Galli's code
+# -https://github.com/KeithGalli/Connect4-Python
+
+class AI(User): 
     
     CHOOSER_NAME = 'AI'
 
