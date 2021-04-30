@@ -1,6 +1,5 @@
 import tkinter as tk
 import random
-import threading
 
 from player import Player
 from ai import AI

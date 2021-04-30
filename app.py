@@ -14,7 +14,7 @@ class App(tk.Tk):
     BG = 'gray65'
 
     BORDER_COLOR = 'black'
-    BORDER_WIDTH = 8
+    BORDER_WIDTH = 5
 
     MIN_BOARD_SIZE = 3
     MAX_BOARD_SIZE = 15
