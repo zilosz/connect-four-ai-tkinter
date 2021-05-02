@@ -65,11 +65,11 @@ class GameScreen(tk.Frame):
         self.columns = columns
         self.connect_amount = connect_amount
 
-        params1 = (self, self.PIECE_COLOR_1, self.WIN_COLOR_1)
-        params2 = (self, self.PIECE_COLOR_2, self.WIN_COLOR_2)
-
-        self.user1 = AI(*params1) if user1 == AI.CHOOSER_NAME else Player(*params1)
-        self.user2 = AI(*params2) if user2 == AI.CHOOSER_NAME else Player(*params2)
+        args1 = (self, self.PIECE_COLOR_1, self.WIN_COLOR_1)
+        args2 = (self, self.PIECE_COLOR_2, self.WIN_COLOR_2)
+        
+        self.user1 = AI(*args1) if user1 == AI.CHOOSER_NAME else Player(*args1)
+        self.user2 = AI(*args2) if user2 == AI.CHOOSER_NAME else Player(*args2)
 
         top_ratio = (
             1
