@@ -9,9 +9,10 @@ from slot import Slot
 # Algorithm a rework of Keith Galli's code
 # -https://github.com/KeithGalli/Connect4-Python
 
-class AI(User): 
-    
-    CHOOSER_NAME = 'AI'
+
+class AI(User):
+
+    CHOOSER_NAME = "AI"
 
     DEFAULT_MOVE_TIME = 400
     DEFAULT_DROP_TIME = 400
@@ -25,16 +26,16 @@ class AI(User):
 
     def __init__(self, game, color, win_color):
         User.__init__(self, game, color, win_color)
-        
+
         self.move_time = self.DEFAULT_MOVE_TIME
         self.drop_time = self.DEFAULT_DROP_TIME
         self.think_time = self.DEFAULT_THINK_TIME
-        
+
     def set_speed(self, speed):
         self.move_time = speed
         self.drop_time = speed
         self.think_time = speed
-        
+
     def reset_speed(self):
         self.move_time = self.DEFAULT_MOVE_TIME
         self.drop_time = self.DEFAULT_DROP_TIME
@@ -42,11 +43,11 @@ class AI(User):
 
     def get_piece_sequence_score(self, sequence):
         score = 0
-        
+
         ai_pieces = sequence.count(self.color)
         enemy_pieces = sequence.count(self.game.get_other_color(self.color))
         empty = sequence.count(Slot.EMPTY_COLOR)
-        
+
         highest_score = self.game.connect_amount * self.WIN_WEIGHT
 
         if ai_pieces == self.game.connect_amount:
@@ -72,7 +73,7 @@ class AI(User):
             center_column = board.center_column()
             last_row_ind = start_row + self.game.connect_amount
 
-            for r in board.colors[start_row: last_row_ind]:
+            for r in board.colors[start_row:last_row_ind]:
                 center_colors.append(r[center_column])
 
                 if board.columns % 2 == 0:
@@ -85,33 +86,39 @@ class AI(User):
             row_colors = board.colors[r]
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                pieces = row_colors[c: c + self.game.connect_amount]
+                pieces = row_colors[c : c + self.game.connect_amount]
                 score += self.get_piece_sequence_score(pieces)
 
         for c in range(board.columns):
             column_colors = [board.colors[r][c] for r in range(board.rows)]
 
             for r in range(board.rows - self.game.connect_amount + 1):
-                pieces = column_colors[r: r + self.game.connect_amount]
+                pieces = column_colors[r : r + self.game.connect_amount]
                 score += self.get_piece_sequence_score(pieces)
 
         for r in range(board.rows - self.game.connect_amount + 1):
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                pieces = [board.colors[r + shift][c + shift]
-                          for shift in range(self.game.connect_amount)]
+                pieces = [
+                    board.colors[r + shift][c + shift]
+                    for shift in range(self.game.connect_amount)
+                ]
                 score += self.get_piece_sequence_score(pieces)
 
         for r in range(board.rows - self.game.connect_amount + 1):
 
             for c in range(board.columns - self.game.connect_amount + 1):
-                pieces = [board.colors[r + self.game.connect_amount - 1 - i][c + i]
-                          for i in range(self.game.connect_amount)]
+                pieces = [
+                    board.colors[r + self.game.connect_amount - 1 - i][c + i]
+                    for i in range(self.game.connect_amount)
+                ]
                 score += self.get_piece_sequence_score(pieces)
 
         return score
 
-    def get_best_column(self, board, ai_score, enemy_score, is_self_turn, depth):
+    def get_best_column(
+        self, board, ai_score, enemy_score, is_self_turn, depth
+    ):
         open_columns = board.get_open_columns()
 
         if depth == 0:
@@ -137,7 +144,8 @@ class AI(User):
                 board_copy = copy.deepcopy(board)
                 board_copy.drop_piece_in_column(open_column, self.color)
                 ai_score_from_column = self.get_best_column(
-                    board_copy, ai_score, enemy_score, False, depth - 1)[1]
+                    board_copy, ai_score, enemy_score, False, depth - 1
+                )[1]
 
                 if ai_score_from_column > max_score:
                     max_score = ai_score_from_column
@@ -159,8 +167,9 @@ class AI(User):
                 other_color = self.game.get_other_color(self.color)
                 board_copy.drop_piece_in_column(open_column, other_color)
                 enemy_score_from_column = self.get_best_column(
-                    board_copy, ai_score, enemy_score, True, depth - 1)[1]
-                
+                    board_copy, ai_score, enemy_score, True, depth - 1
+                )[1]
+
                 if enemy_score_from_column < min_score:
                     min_score = enemy_score_from_column
                     chosen_column = open_column
@@ -174,15 +183,17 @@ class AI(User):
 
     def initiate_turn(self):
         self.game.disable_player_input()
-        self.game.change_wait_symbol_state('normal')
+        self.game.change_wait_symbol_state("normal")
         self.game.app.update()
         self.game.app.after(self.think_time, self.game.app.update_idletasks())
 
         column_played = self.get_best_column(
-            self.game.board, -math.inf, math.inf, True, self.DEPTH)[0]
+            self.game.board, -math.inf, math.inf, True, self.DEPTH
+        )[0]
 
-        self.game.change_wait_symbol_state('hidden')
+        self.game.change_wait_symbol_state("hidden")
         self.game.move_drop_piece_to_column(
-            column_played, move_time=self.move_time)
+            column_played, move_time=self.move_time
+        )
         self.game.app.after(self.drop_time, self.game.drop_piece())
         self.game.app.update_idletasks()

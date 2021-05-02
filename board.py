@@ -2,7 +2,6 @@ from slot import Slot
 
 
 class Board:
-
     def __init__(self, rows, columns):
         self.rows = rows
         self.columns = columns
@@ -77,7 +76,9 @@ class Board:
         r = piece_row + 1
         c = piece_column + 1
 
-        while r < self.rows and c < self.columns and self.colors[r][c] == color:
+        while (
+            r < self.rows and c < self.columns and self.colors[r][c] == color
+        ):
             back_diagonal_coordinates.append((r, c))
             r += 1
             c += 1

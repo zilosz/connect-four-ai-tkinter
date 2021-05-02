@@ -11,13 +11,13 @@ from ai import AI
 
 class App(tk.Tk):
 
-    BG = 'gray65'
+    BG = "gray65"
 
-    BORDER_COLOR = 'black'
+    BORDER_COLOR = "black"
     BORDER_WIDTH = 5
 
-    MIN_BOARD_SIZE = 3
-    MAX_BOARD_SIZE = 15
+    MIN_BOARD_SIZE = 4
+    MAX_BOARD_SIZE = 12
     DEFAULT_ROWS = 6
     DEFAULT_COLUMNS = 7
 
@@ -30,21 +30,21 @@ class App(tk.Tk):
 
     def __init__(self) -> None:
         tk.Tk.__init__(self)
-        
-        self.state('zoom')
-        self.title('Connect Four')
+
+        self.state("zoom")
+        self.title("Connect Four")
         self.configure(bg=self.BG)
-        
+
         monitor_info = win.GetMonitorInfo(win.MonitorFromPoint((0, 0)))
         monitor_area = monitor_info.get("Monitor")
         work_area = monitor_info.get("Work")
         task_bar_height = monitor_area[3] - work_area[3]
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
         window_title_height = ctypes.windll.user32.GetSystemMetrics(4)
-        
+
         self.width, self.height = gui.size()
         self.height -= task_bar_height + window_title_height
-        
+
         self.home_screen = HomeScreen(self)
         self.home_screen.draw()
         self.game_screen = None
@@ -56,15 +56,14 @@ class App(tk.Tk):
 
     def start_game(self, event=None):
         self.home_screen.grid_forget()
-        
-        self.game_screen = GameScreen(
-            self, 
-            int(self.home_screen.row_chooser.spinbox.get()),
-            int(self.home_screen.column_chooser.spinbox.get()),
-            int(self.home_screen.connect_amount_chooser.spinbox.get()),
-            self.home_screen.user1_chooser.spinbox.get(),
-            self.home_screen.user2_chooser.spinbox.get()
-        )
+
+        row = int(self.home_screen.row_chooser.spinbox.get())
+        col = int(self.home_screen.column_chooser.spinbox.get())
+        connect = int(self.home_screen.connect_amount_chooser.spinbox.get())
+        user1 = self.home_screen.user1_chooser.spinbox.get()
+        user2 = self.home_screen.user2_chooser.spinbox.get()
+
+        self.game_screen = GameScreen(self, row, col, connect, user1, user2)
         self.game_screen.draw()
         self.game_screen.manage_turn()
 
