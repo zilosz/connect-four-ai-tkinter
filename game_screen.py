@@ -342,7 +342,7 @@ class GameScreen(tk.Frame):
     def draw(self):
         self.grid(padx=(self.app.width / 2 - self.winfo_reqwidth() / 2, 0))
 
-    def get_other_color(self, color):
+    def other_color(self, color):
 
         if color == self.user1.color:
             return self.user2.color
@@ -421,9 +421,7 @@ class GameScreen(tk.Frame):
 
             drop_row = self.board.get_drop_row_in_column(self.drop_col)
             slot = self.slots[drop_row][self.drop_col]
-            self.board.drop_piece_in_column(
-                self.drop_col, self.user_going.color
-            )
+            self.board.drop_in_col(self.drop_col, self.user_going.color)
             slot.set_piece_color(self.user_going.color)
             slot.mark_as_last_played()
 

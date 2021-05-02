@@ -2,6 +2,7 @@ from slot import Slot
 
 
 class Board:
+
     def __init__(self, rows, columns):
         self.rows = rows
         self.columns = columns
@@ -21,12 +22,12 @@ class Board:
             if self.colors[row][column] == Slot.EMPTY_COLOR:
                 return row
 
-    def drop_piece_in_column(self, column, piece_color):
+    def drop_in_col(self, column, piece_color):
         lowest_row = self.get_drop_row_in_column(column)
         self.colors[lowest_row][column] = piece_color
         self.last_coord = (lowest_row, column)
 
-    def get_open_columns(self):
+    def open_columns(self):
         return [col for col in range(self.columns) if self.is_column_open(col)]
 
     def winning_coordinates(self, piece_row, piece_column, connect_amount):
@@ -76,9 +77,7 @@ class Board:
         r = piece_row + 1
         c = piece_column + 1
 
-        while (
-            r < self.rows and c < self.columns and self.colors[r][c] == color
-        ):
+        while r < self.rows and c < self.columns and self.colors[r][c] == color:
             back_diagonal_coordinates.append((r, c))
             r += 1
             c += 1
@@ -116,4 +115,4 @@ class Board:
         return len(win_coords) >= connect_amount
 
     def is_full(self):
-        return len(self.get_open_columns()) == 0
+        return len(self.open_columns()) == 0
